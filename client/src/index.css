@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 0%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 13.8%, 34.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 0%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 0%);
+  --border: hsl(214.3, 31.8%, 91.4%);
+  --input: hsl(214.3, 31.8%, 91.4%);
+  --primary: hsl(142, 100%, 39%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(210, 40%, 96%);
+  --secondary-foreground: hsl(0, 0%, 0%);
+  --accent: hsl(210, 40%, 96%);
+  --accent-foreground: hsl(0, 0%, 0%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(142, 100%, 39%);
+  --radius: 0.5rem;
+  
+  /* BitOja brand colors */
+  --bitoja-green: hsl(142, 100%, 39%);
+  --bitoja-green-dark: hsl(142, 100%, 32%);
+  --bitoja-black: hsl(0, 0%, 0%);
+  --bitoja-gray: hsl(0, 0%, 10%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 10%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(0, 0%, 10%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(0, 0%, 10%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(142, 100%, 39%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(142, 100%, 39%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* BitOja custom styles */
+.bg-bitoja-green {
+  background-color: var(--bitoja-green);
+}
+
+.bg-bitoja-green-dark {
+  background-color: var(--bitoja-green-dark);
+}
+
+.bg-bitoja-black {
+  background-color: var(--bitoja-black);
+}
+
+.bg-bitoja-gray {
+  background-color: var(--bitoja-gray);
+}
+
+.text-bitoja-green {
+  color: var(--bitoja-green);
+}
+
+.text-bitoja-green-dark {
+  color: var(--bitoja-green-dark);
+}
+
+.text-bitoja-black {
+  color: var(--bitoja-black);
+}
+
+.text-bitoja-gray {
+  color: var(--bitoja-gray);
+}
+
+.border-bitoja-green {
+  border-color: var(--bitoja-green);
+}
+
+.hover\:bg-bitoja-green-dark:hover {
+  background-color: var(--bitoja-green-dark);
+}
+
+.hover\:text-bitoja-green:hover {
+  color: var(--bitoja-green);
+}
+
+.focus\:ring-bitoja-green:focus {
+  --tw-ring-color: var(--bitoja-green);
+}

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#1976D2',
+                        secondary: '#424242',
+                        success: '#4CAF50',
+                        warning: '#FF9800',
+                        error: '#F44336',
+                        surface: '#FFFFFF',
+                        background: '#FAFAFA',
+                    }
+                }
+            }
+        };
+    </script>
+</head>
+<body class="font-inter bg-background text-secondary">
+    <!-- @COMPONENT: AppHeader -->
+    <header class="bg-surface shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-primary">P2P Trade</h1>
+                    </div>
+                    <nav class="hidden md:ml-10 md:flex space-x-8">
+                        <a href="#" class="text-primary font-medium border-b-2 border-primary pb-4">Market</a>
+                        <a href="#" class="text-gray-500 hover:text-primary pb-4">My Ads</a>
+                        <a href="#" class="text-gray-500 hover:text-primary pb-4">Trades</a>
+                        <a href="#" class="text-gray-500 hover:text-primary pb-4">Wallet</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-4">
+                        <div class="text-sm">
+                            <span class="text-gray-500">Balance:</span>
+                            <span class="font-semibold text-success" data-bind="user.balance">1,250.00 USDT</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="p-2 text-gray-400 hover:text-gray-500">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                        <!-- Profile image is not guaranteed to be square -->
+                        <img class="h-8 w-8 rounded-full object-cover" data-bind="user.avatar" data-mock="true" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&w=32&h=32&fit=crop&crop=face" alt="User avatar">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Navigation -->
+        <div class="md:hidden border-t border-gray-200">
+            <div class="flex justify-around py-2">
+                <a href="#" class="flex flex-col items-center p-2 text-primary">
+                    <i class="fas fa-chart-line text-sm"></i>
+                    <span class="text-xs mt-1">Market</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-2 text-gray-500">
+                    <i class="fas fa-bullhorn text-sm"></i>
+                    <span class="text-xs mt-1">My Ads</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-2 text-gray-500">
+                    <i class="fas fa-exchange-alt text-sm"></i>
+                    <span class="text-xs mt-1">Trades</span>
+                </a>
+                <a href="#" class="flex flex-col items-center p-2 text-gray-500">
+                    <i class="fas fa-wallet text-sm"></i>
+                    <span class="text-xs mt-1">Wallet</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: AppHeader -->
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- @COMPONENT: MarketSection -->
+        <div id="market-section" class="space-y-6">
+            <!-- Trade Type Selector & Quick Actions -->
+            <div class="bg-surface rounded-lg shadow-sm p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex space-x-1 bg-gray-100 rounded-lg p-1">
+                        <button class="px-4 py-2 text-sm font-medium bg-primary text-white rounded-md">Buy USDT</button>
+                        <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Sell USDT</button>
+                    </div>
+                    <button class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" data-event="click:openCreateAdModal">
+                        <i class="fas fa-plus mr-2"></i>Create Ad
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option>All Currencies</option>
+                            <option>NGN - Nigerian Naira</option>
+                            <option>GHS - Ghanaian Cedi</option>
+                            <option>KES - Kenyan Shilling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                        <select class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option>All Methods</option>
+                            <option>Bank Transfer</option>
+                            <option>Mobile Money</option>
+                            <option>Cash</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                        <input type="number" placeholder="Min amount" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                    </div>
+                    <div class="flex items-end">
+                        <button class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ads Listing -->
+            <div class="bg-surface rounded-lg shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Available Offers</h2>
+                </div>
+                
+                <!-- @MAP: ads.map(ad => ( -->
+                <div class="divide-y divide-gray-200">
+                    <!-- Ad Item 1 -->
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Trader profile image is not guaranteed to be square -->
+                                <img class="h-10 w-10 rounded-full object-cover" data-mock="true" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=40&h=40&fit=crop&crop=face" alt="Trader avatar">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-medium text-gray-900" data-bind="ad.traderName">John Trader</span>
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-success text-white rounded-full">
+                                            <i class="fas fa-check mr-1"></i>Verified
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                                        <span>98% completion</span>
+                                        <span>•</span>
+                                        <span>245 trades</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-gray-900" data-bind="ad.rate">₦765.50</div>
+                                <div class="text-sm text-gray-500">per USDT</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Payment:</span>
+                                <div class="font-medium" data-bind="ad.paymentMethod">Bank Transfer</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Limits:</span>
+                                <div class="font-medium" data-bind="ad.limits">₦10K - ₦500K</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Available:</span>
+                                <div class="font-medium text-success" data-bind="ad.available">1,250 USDT</div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button class="bg-primary text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors" data-event="click:initiateTradeModal">
+                                    Buy USDT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ad Item 2 -->
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Another trader profile image is not guaranteed to be square -->
+                                <img class="h-10 w-10 rounded-full object-cover" data-mock="true" src="https://pixabay.com/get/g3c15811daa2f0a7c402a73272395304ce65b4eb3e0f50d32b8e8daf0b5d97fa3d8b92463631612b060f50743925fdfa2e43dc25fc1f0cd8c9f1472dcbfc3e74f_1280.jpg" alt="Trader avatar">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-medium text-gray-900" data-bind="ad.traderName">Sarah Crypto</span>
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-warning text-white rounded-full">
+                                            New Trader
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                                        <span>95% completion</span>
+                                        <span>•</span>
+                                        <span>12 trades</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-gray-900" data-bind="ad.rate">₦768.20</div>
+                                <div class="text-sm text-gray-500">per USDT</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Payment:</span>
+                                <div class="font-medium" data-bind="ad.paymentMethod">Mobile Money</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Limits:</span>
+                                <div class="font-medium" data-bind="ad.limits">₦5K - ₦100K</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Available:</span>
+                                <div class="font-medium text-success" data-bind="ad.available">850 USDT</div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button class="bg-primary text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors" data-event="click:initiateTradeModal">
+                                    Buy USDT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ad Item 3 -->
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Third trader profile image is not guaranteed to be square -->
+                                <img class="h-10 w-10 rounded-full object-cover" data-mock="true" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&w=40&h=40&fit=crop&crop=face" alt="Trader avatar">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-medium text-gray-900" data-bind="ad.traderName">Mike Exchange</span>
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-success text-white rounded-full">
+                                            <i class="fas fa-star mr-1"></i>Pro
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-500 mt-1">
+                                        <span>99% completion</span>
+                                        <span>•</span>
+                                        <span>1,240 trades</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-semibold text-gray-900" data-bind="ad.rate">₦763.80</div>
+                                <div class="text-sm text-gray-500">per USDT</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-500">Payment:</span>
+                                <div class="font-medium" data-bind="ad.paymentMethod">Bank Transfer</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Limits:</span>
+                                <div class="font-medium" data-bind="ad.limits">₦50K - ₦2M</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">Available:</span>
+                                <div class="font-medium text-success" data-bind="ad.available">5,000 USDT</div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button class="bg-primary text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors" data-event="click:initiateTradeModal">
+                                    Buy USDT
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </div>
+        </div>
+        <!-- @END_COMPONENT: MarketSection -->
+
+        <!-- @COMPONENT: ActiveTradesSection -->
+        <div id="active-trades" class="mt-8 bg-surface rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Active Trades</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                <!-- Active Trade Item -->
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <span class="inline-flex items-center px-3 py-1 text-sm font-medium bg-warning text-white rounded-full">
+                                Pending Payment
+                            </span>
+                            <span class="text-sm text-gray-500" data-bind="trade.id">Trade #TR001234</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-semibold" data-bind="trade.amount">500 USDT</div>
+                            <div class="text-sm text-gray-500" data-bind="trade.fiatAmount">₦382,750</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Trade Details -->
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-3">
+                                <!-- Trading partner profile image is not guaranteed to be square -->
+                                <img class="h-8 w-8 rounded-full object-cover" data-mock="true" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=32&h=32&fit=crop&crop=face" alt="Trading partner">
+                                <div>
+                                    <div class="font-medium" data-bind="trade.partnerName">John Trader</div>
+                                    <div class="text-sm text-gray-500">Seller</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Payment Method:</span>
+                                    <span class="font-medium" data-bind="trade.paymentMethod">Bank Transfer</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Rate:</span>
+                                    <span class="font-medium" data-bind="trade.rate">₦765.50/USDT</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">Time Limit:</span>
+                                    <span class="font-medium text-warning">14:32 remaining</span>
+                                </div>
+                            </div>
+
+                            <!-- Payment Instructions -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-medium text-blue-900 mb-2">Payment Instructions</h4>
+                                <div class="text-sm text-blue-800 space-y-1">
+                                    <div><strong>Bank:</strong> First Bank Nigeria</div>
+                                    <div><strong>Account:</strong> 1234567890</div>
+                                    <div><strong>Name:</strong> John Trader</div>
+                                    <div><strong>Amount:</strong> ₦382,750.00</div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex space-x-3">
+                                <button class="flex-1 bg-success text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600">
+                                    <i class="fas fa-upload mr-2"></i>Upload Proof
+                                </button>
+                                <button class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200">
+                                    <i class="fas fa-flag mr-2"></i>Report Issue
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chat Interface -->
+                        <div class="border border-gray-200 rounded-lg">
+                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                <h4 class="font-medium text-gray-900">Trade Chat</h4>
+                            </div>
+                            <div class="h-64 overflow-y-auto p-4 space-y-3">
+                                <!-- Chat Messages -->
+                                <div class="flex justify-start">
+                                    <div class="max-w-xs bg-gray-100 rounded-lg px-3 py-2">
+                                        <div class="text-sm text-gray-600 mb-1">John Trader</div>
+                                        <div class="text-sm" data-mock="true">Hello! Please make the payment to the account details provided.</div>
+                                        <div class="text-xs text-gray-500 mt-1">2 min ago</div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end">
+                                    <div class="max-w-xs bg-primary text-white rounded-lg px-3 py-2">
+                                        <div class="text-sm" data-mock="true">Payment sent! Uploading proof now.</div>
+                                        <div class="text-xs text-blue-200 mt-1">1 min ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-200 p-4">
+                                <div class="flex space-x-2">
+                                    <input type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm">
+                                    <button class="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ActiveTradesSection -->
+
+        <!-- @COMPONENT: WalletSection -->
+        <div id="wallet-section" class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Wallet Balance -->
+            <div class="lg:col-span-2 bg-surface rounded-lg shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">Wallet Overview</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-success" data-bind="wallet.available">1,250.00</div>
+                        <div class="text-sm text-gray-600">Available USDT</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-warning" data-bind="wallet.inTrade">500.00</div>
+                        <div class="text-sm text-gray-600">In Trade</div>
+                    </div>
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-primary" data-bind="wallet.total">1,750.00</div>
+                        <div class="text-sm text-gray-600">Total Balance</div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="mt-8">
+                    <h3 class="text-md font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+                    <div class="space-y-3">
+                        <!-- @MAP: transactions.map(tx => ( -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
+                                    <i class="fas fa-arrow-down text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm" data-bind="tx.description">Received from trade #TR001233</div>
+                                    <div class="text-xs text-gray-500" data-bind="tx.date">2 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold text-success" data-bind="tx.amount">+100.00 USDT</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-warning rounded-full flex items-center justify-center">
+                                    <i class="fas fa-lock text-white text-xs"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm" data-bind="tx.description">Locked for trade #TR001234</div>
+                                    <div class="text-xs text-gray-500" data-bind="tx.date">1 hour ago</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-semibold text-warning" data-bind="tx.amount">-500.00 USDT</div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="space-y-6">
+                <div class="bg-surface rounded-lg shadow-sm p-6">
+                    <h3 class="text-md font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <button class="w-full bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Create Buy Ad
+                        </button>
+                        <button class="w-full bg-success text-white px-4 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
+                            <i class="fas fa-minus mr-2"></i>Create Sell Ad
+                        </button>
+                        <button class="w-full bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                            <i class="fas fa-history mr-2"></i>Trade History
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security Status -->
+                <div class="bg-surface rounded-lg shadow-sm p-6">
+                    <h3 class="text-md font-semibold text-gray-900 mb-4">Security Status</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Email Verified</span>
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Phone Verified</span>
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">KYC Verification</span>
+                            <span class="text-xs bg-warning text-white px-2 py-1 rounded">Pending</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">2FA Enabled</span>
+                            <i class="fas fa-times-circle text-error"></i>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 bg-blue-50 text-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+                        Complete Verification
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: WalletSection -->
+
+        <!-- @COMPONENT: AdminPanel -->
+        <div id="admin-panel" class="mt-8 bg-surface rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Admin Panel</h2>
+                <p class="text-sm text-gray-500 mt-1">Manage users, resolve disputes, and monitor platform activity</p>
+            </div>
+            
+            <div class="p-6">
+                <!-- Admin Stats -->
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-8">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-primary" data-bind="admin.stats.activeUsers">1,247</div>
+                        <div class="text-sm text-gray-600">Active Users</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-success" data-bind="admin.stats.completedTrades">89</div>
+                        <div class="text-sm text-gray-600">Trades Today</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <div class="text-2xl font-bold text-warning" data-bind="admin.stats.pendingDisputes">3</div>
+                        <div class="text-sm text-gray-600">Pending Disputes</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600" data-bind="admin.stats.totalVolume">$124,560</div>
+                        <div class="text-sm text-gray-600">Volume Today</div>
+                    </div>
+                </div>
+
+                <!-- Dispute Resolution -->
+                <div class="mb-8">
+                    <h3 class="text-md font-semibold text-gray-900 mb-4">Dispute Resolution</h3>
+                    <div class="bg-gray-50 rounded-lg">
+                        <div class="divide-y divide-gray-200">
+                            <!-- @MAP: disputes.map(dispute => ( -->
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-error text-white rounded-full">
+                                            High Priority
+                                        </span>
+                                        <span class="font-medium" data-bind="dispute.id">Dispute #DP001234</span>
+                                    </div>
+                                    <span class="text-sm text-gray-500" data-bind="dispute.created">2 hours ago</span>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-500">Trade ID:</span>
+                                        <div class="font-medium" data-bind="dispute.tradeId">#TR001234</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Amount:</span>
+                                        <div class="font-medium" data-bind="dispute.amount">500 USDT</div>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Issue:</span>
+                                        <div class="font-medium" data-bind="dispute.issue">Payment not received</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-3 mt-4">
+                                    <button class="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                                        View Details
+                                    </button>
+                                    <button class="bg-success text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600">
+                                        Release Funds
+                                    </button>
+                                    <button class="bg-error text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600">
+                                        Cancel Trade
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div>
+                    <h3 class="text-md font-semibold text-gray-900 mb-4">User Management</h3>
+                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trades</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- @MAP: users.map(user => ( -->
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <!-- User profile image is not guaranteed to be square -->
+                                            <img class="h-8 w-8 rounded-full object-cover" data-mock="true" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=32&h=32&fit=crop&crop=face" alt="User">
+                                            <div class="ml-3">
+                                                <div class="text-sm font-medium text-gray-900" data-bind="user.name">John Trader</div>
+                                                <div class="text-sm text-gray-500" data-bind="user.email">john@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-success text-white rounded-full">
+                                            Verified
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="user.tradeCount">245</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" data-bind="user.balance">1,250 USDT</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <button class="text-primary hover:text-blue-700 mr-3">Edit</button>
+                                        <button class="text-error hover:text-red-700">Suspend</button>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: AdminPanel -->
+    </div>
+
+    <!-- @COMPONENT: CreateAdModal -->
+    <!-- Modal would be implemented with proper state management in React -->
+    <div id="create-ad-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Create Advertisement</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ad Type</label>
+                    <select class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        <option>Buy USDT</option>
+                        <option>Sell USDT</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                    <select class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        <option>Bank Transfer</option>
+                        <option>Mobile Money</option>
+                        <option>Cash</option>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Min Amount</label>
+                        <input type="number" placeholder="100" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Max Amount</label>
+                        <input type="number" placeholder="1000" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rate per USDT</label>
+                    <input type="number" step="0.01" placeholder="765.50" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Terms & Instructions</label>
+                    <textarea rows="3" placeholder="Enter your trading terms and payment instructions..." class="w-full border border-gray-300 rounded-md px-3 py-2"></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                <button class="px-4 py-2 bg-primary text-white rounded-md hover:bg-blue-700">Create Ad</button>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: CreateAdModal -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            // Simple modal functionality for demonstration
+            // In React, this would be handled by state management
+            
+            const showModal = (modalId) => {
+                document.getElementById(modalId).classList.remove('hidden');
+            };
+            
+            const hideModal = (modalId) => {
+                document.getElementById(modalId).classList.add('hidden');
+            };
+            
+            // Click outside modal to close
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('bg-black')) {
+                    e.target.classList.add('hidden');
+                }
+            });
+            
+            // Tab switching functionality would be implemented in React with proper state
+            // This is just for visual demonstration
+        })();
+    </script>
+</body>
+</html>

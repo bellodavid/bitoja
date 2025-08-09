@@ -1,0 +1,653 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitOja - P2P Crypto Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'bitoja': {
+                        'black': '#000000',
+                        'green': '#16A34A',
+                        'green-light': '#22C55E',
+                        'green-dark': '#15803D',
+                        'emerald': '#10B981',
+                        'amber': '#F59E0B',
+                        'red': '#EF4444'
+                    }
+                },
+                animation: {
+                    'pulse-slow': 'pulse 3s infinite',
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body class="bg-gray-900 text-white font-inter">
+    <!-- @COMPONENT: Header [navigation and user menu] -->
+    <header class="bg-black border-b border-gray-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-bitoja-green rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-black text-sm"></i>
+                    </div>
+                    <span class="text-2xl font-bold text-white">BitOja</span>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="text-bitoja-green font-medium">Dashboard</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">P2P Trading</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">My Ads</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Orders</a>
+                    <a href="#" class="text-gray-300 hover:text-white transition-colors">Wallet</a>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="bg-gray-800 p-2 rounded-lg hover:bg-gray-700 transition-colors" data-event="click:toggleNotifications">
+                            <i class="fas fa-bell text-gray-300"></i>
+                            <span class="absolute -top-1 -right-1 bg-bitoja-red w-3 h-3 rounded-full"></span>
+                        </button>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <!-- Profile image placeholder - not guaranteed to be square -->
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                             alt="User profile" 
+                             class="w-8 h-8 rounded-full object-cover" />
+                        <span class="text-sm font-medium" data-bind="user.name" data-mock="true">John Trader</span>
+                        <button class="text-gray-400 hover:text-white">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button class="md:hidden p-2 rounded-lg bg-gray-800 hover:bg-gray-700">
+                    <i class="fas fa-bars text-gray-300"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: MainLayout [sidebar and content area] -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex lg:flex-col lg:w-64 bg-gray-900 border-r border-gray-800">
+            <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                <!-- Quick Stats -->
+                <div class="px-4 mb-6">
+                    <div class="bg-gray-800 rounded-lg p-4">
+                        <h3 class="text-sm font-medium text-gray-300 mb-3">Quick Stats</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-xs text-gray-400">USDT Balance</span>
+                                <span class="text-sm font-medium text-bitoja-green" data-bind="wallet.usdtBalance" data-mock="true">$1,250.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-xs text-gray-400">Active Orders</span>
+                                <span class="text-sm font-medium" data-bind="orders.active.length" data-mock="true">3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-xs text-gray-400">Success Rate</span>
+                                <span class="text-sm font-medium text-bitoja-green" data-bind="user.successRate" data-mock="true">98.5%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="px-4">
+                    <h3 class="text-sm font-medium text-gray-300 mb-3">Quick Actions</h3>
+                    <div class="space-y-2">
+                        <button class="w-full bg-bitoja-green text-black px-4 py-2 rounded-lg font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:createAd">
+                            <i class="fas fa-plus mr-2"></i>Create Ad
+                        </button>
+                        <button class="w-full bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors" data-event="click:browseTrades">
+                            <i class="fas fa-search mr-2"></i>Browse Trades
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden">
+            <!-- Dashboard Header -->
+            <div class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                        <p class="text-sm text-gray-400">Welcome back, <span data-bind="user.name" data-mock="true">John</span></p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2 text-sm">
+                            <div class="w-2 h-2 bg-bitoja-green rounded-full animate-pulse-slow"></div>
+                            <span class="text-gray-300">Market Open</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-gray-400">USDT/NGN</div>
+                            <div class="font-medium text-bitoja-green" data-bind="market.usdtNgnRate" data-mock="true">₦750.50</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6 overflow-y-auto h-full">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Total Balance</p>
+                                <p class="text-2xl font-bold text-white" data-bind="wallet.totalBalance" data-mock="true">$1,250.00</p>
+                                <p class="text-xs text-bitoja-green mt-1">+2.5% this week</p>
+                            </div>
+                            <div class="w-12 h-12 bg-bitoja-green rounded-lg flex items-center justify-center">
+                                <i class="fas fa-wallet text-black text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Completed Trades</p>
+                                <p class="text-2xl font-bold text-white" data-bind="trades.completed.length" data-mock="true">127</p>
+                                <p class="text-xs text-bitoja-green mt-1">+12 this month</p>
+                            </div>
+                            <div class="w-12 h-12 bg-bitoja-emerald rounded-lg flex items-center justify-center">
+                                <i class="fas fa-handshake text-white text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Active Ads</p>
+                                <p class="text-2xl font-bold text-white" data-bind="ads.active.length" data-mock="true">5</p>
+                                <p class="text-xs text-gray-400 mt-1">2 buy, 3 sell</p>
+                            </div>
+                            <div class="w-12 h-12 bg-bitoja-amber rounded-lg flex items-center justify-center">
+                                <i class="fas fa-megaphone text-white text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-400">Success Rate</p>
+                                <p class="text-2xl font-bold text-white" data-bind="user.successRate" data-mock="true">98.5%</p>
+                                <p class="text-xs text-bitoja-green mt-1">Excellent rating</p>
+                            </div>
+                            <div class="w-12 h-12 bg-bitoja-green rounded-lg flex items-center justify-center">
+                                <i class="fas fa-star text-black text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Active Trades Section -->
+                    <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-semibold text-white">Active Trades</h2>
+                                <span class="text-sm text-gray-400" data-bind="trades.active.length" data-mock="true">3 ongoing</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- @MAP: activetrades.map(trade => ( -->
+                            <div class="space-y-4" data-mock="true">
+                                <div class="bg-gray-900 rounded-lg p-4 border border-gray-600">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-bitoja-green rounded-full flex items-center justify-center">
+                                                <i class="fas fa-arrow-up text-black text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-white">Sell USDT</div>
+                                                <div class="text-xs text-gray-400">Order #TR-2024-001</div>
+                                            </div>
+                                        </div>
+                                        <span class="bg-bitoja-amber text-black px-2 py-1 rounded-full text-xs font-medium">Pending Payment</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-gray-400">Amount:</span>
+                                            <span class="text-white font-medium ml-2">$500.00</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Rate:</span>
+                                            <span class="text-white font-medium ml-2">₦750.50</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <div class="text-xs text-gray-400">Buyer: <span class="text-white">@cryptobuyer</span></div>
+                                        <button class="bg-bitoja-green text-black px-3 py-1 rounded text-xs font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:openTrade">
+                                            View Trade
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-900 rounded-lg p-4 border border-gray-600">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-bitoja-emerald rounded-full flex items-center justify-center">
+                                                <i class="fas fa-arrow-down text-white text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <div class="font-medium text-white">Buy USDT</div>
+                                                <div class="text-xs text-gray-400">Order #TR-2024-002</div>
+                                            </div>
+                                        </div>
+                                        <span class="bg-bitoja-green text-black px-2 py-1 rounded-full text-xs font-medium">Payment Sent</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span class="text-gray-400">Amount:</span>
+                                            <span class="text-white font-medium ml-2">$200.00</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Rate:</span>
+                                            <span class="text-white font-medium ml-2">₦751.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <div class="text-xs text-gray-400">Seller: <span class="text-white">@usdtseller</span></div>
+                                        <button class="bg-bitoja-green text-black px-3 py-1 rounded text-xs font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:openTrade">
+                                            View Trade
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                            
+                            <div class="mt-4 text-center">
+                                <button class="text-bitoja-green text-sm hover:text-bitoja-green-light transition-colors" data-event="click:viewAllTrades">
+                                    View all trades <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Market Ads Section -->
+                    <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-lg font-semibold text-white">Market Ads</h2>
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded hover:bg-gray-600 transition-colors" data-event="click:filterBuy">
+                                        Buy
+                                    </button>
+                                    <button class="text-xs bg-bitoja-green text-black px-2 py-1 rounded font-medium" data-event="click:filterSell">
+                                        Sell
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <!-- @MAP: marketAds.map(ad => ( -->
+                            <div class="space-y-4" data-mock="true">
+                                <div class="bg-gray-900 rounded-lg p-4 border border-gray-600 hover:border-gray-500 transition-colors cursor-pointer" data-event="click:selectAd">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <!-- Profile image for ad owner - not guaranteed to be square -->
+                                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                                                 alt="Trader profile" 
+                                                 class="w-10 h-10 rounded-full object-cover" />
+                                            <div>
+                                                <div class="font-medium text-white">@fasttrader</div>
+                                                <div class="text-xs text-gray-400">
+                                                    <i class="fas fa-star text-bitoja-green mr-1"></i>
+                                                    99.2% (834 trades)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="bg-bitoja-red text-white px-2 py-1 rounded-full text-xs font-medium">SELL</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                                        <div>
+                                            <span class="text-gray-400">Price:</span>
+                                            <span class="text-bitoja-green font-bold ml-2">₦750.00</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Available:</span>
+                                            <span class="text-white font-medium ml-2">$2,500</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Limit:</span>
+                                            <span class="text-white font-medium ml-2">$50 - $1000</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Payment:</span>
+                                            <span class="text-white font-medium ml-2">Bank Transfer</span>
+                                        </div>
+                                    </div>
+                                    <button class="w-full bg-bitoja-green text-black py-2 rounded font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:startTrade">
+                                        Buy USDT
+                                    </button>
+                                </div>
+
+                                <div class="bg-gray-900 rounded-lg p-4 border border-gray-600 hover:border-gray-500 transition-colors cursor-pointer" data-event="click:selectAd">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <!-- Profile image for ad owner - not guaranteed to be square -->
+                                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b637?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                                                 alt="Trader profile" 
+                                                 class="w-10 h-10 rounded-full object-cover" />
+                                            <div>
+                                                <div class="font-medium text-white">@cryptoqueen</div>
+                                                <div class="text-xs text-gray-400">
+                                                    <i class="fas fa-star text-bitoja-green mr-1"></i>
+                                                    97.8% (456 trades)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="bg-bitoja-green text-black px-2 py-1 rounded-full text-xs font-medium">BUY</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 text-sm mb-3">
+                                        <div>
+                                            <span class="text-gray-400">Price:</span>
+                                            <span class="text-bitoja-green font-bold ml-2">₦751.50</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Max:</span>
+                                            <span class="text-white font-medium ml-2">$5,000</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Limit:</span>
+                                            <span class="text-white font-medium ml-2">$100 - $2000</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-gray-400">Payment:</span>
+                                            <span class="text-white font-medium ml-2">Mobile Money</span>
+                                        </div>
+                                    </div>
+                                    <button class="w-full bg-bitoja-green text-black py-2 rounded font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:startTrade">
+                                        Sell USDT
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                            
+                            <div class="mt-4 text-center">
+                                <button class="text-bitoja-green text-sm hover:text-bitoja-green-light transition-colors" data-event="click:viewAllAds">
+                                    View all market ads <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trade Modal/Interface (Initially Hidden) -->
+                <div id="tradeModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-mock="true">
+                    <div class="flex items-center justify-center min-h-screen p-4">
+                        <div class="bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+                            <!-- Trade Header -->
+                            <div class="flex items-center justify-between p-6 border-b border-gray-700">
+                                <div class="flex items-center space-x-4">
+                                    <h2 class="text-xl font-bold text-white">Trade #TR-2024-001</h2>
+                                    <span class="bg-bitoja-amber text-black px-3 py-1 rounded-full text-sm font-medium">Awaiting Payment</span>
+                                </div>
+                                <button class="text-gray-400 hover:text-white" data-event="click:closeTrade">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
+                                <!-- Trade Details -->
+                                <div class="space-y-6">
+                                    <div class="bg-gray-900 rounded-lg p-4">
+                                        <h3 class="font-semibold text-white mb-4">Trade Information</h3>
+                                        <div class="space-y-3 text-sm">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Type:</span>
+                                                <span class="text-white font-medium">Sell USDT</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Amount:</span>
+                                                <span class="text-bitoja-green font-bold">$500.00 USDT</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Rate:</span>
+                                                <span class="text-white font-medium">₦750.50 / USDT</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Total:</span>
+                                                <span class="text-white font-bold">₦375,250.00</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Payment Method:</span>
+                                                <span class="text-white font-medium">Bank Transfer</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Time Limit:</span>
+                                                <span class="text-bitoja-amber font-medium">14:32 remaining</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Payment Instructions -->
+                                    <div class="bg-gray-900 rounded-lg p-4">
+                                        <h3 class="font-semibold text-white mb-4">Payment Instructions</h3>
+                                        <div class="space-y-3 text-sm">
+                                            <div>
+                                                <span class="text-gray-400">Bank Name:</span>
+                                                <span class="text-white font-medium ml-2">GTBank</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-400">Account Number:</span>
+                                                <span class="text-white font-medium ml-2">0123456789</span>
+                                                <button class="ml-2 text-bitoja-green hover:text-bitoja-green-light" data-event="click:copyAccount">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <span class="text-gray-400">Account Name:</span>
+                                                <span class="text-white font-medium ml-2">John Doe</span>
+                                            </div>
+                                            <div class="bg-bitoja-amber bg-opacity-20 border border-bitoja-amber rounded p-3 mt-4">
+                                                <p class="text-bitoja-amber text-xs">
+                                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                                    Please include reference: TR-2024-001 in your transfer description
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Proof -->
+                                    <div class="bg-gray-900 rounded-lg p-4">
+                                        <h3 class="font-semibold text-white mb-4">Upload Payment Proof</h3>
+                                        <div class="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-bitoja-green transition-colors">
+                                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                            <p class="text-gray-400 text-sm">Click to upload or drag and drop</p>
+                                            <p class="text-gray-500 text-xs mt-1">PNG, JPG up to 10MB</p>
+                                            <input type="file" class="hidden" accept="image/*" data-implementation="File upload component for payment proof" />
+                                        </div>
+                                        <button class="w-full bg-bitoja-green text-black py-2 rounded font-medium mt-4 hover:bg-bitoja-green-light transition-colors" data-event="click:uploadProof">
+                                            Upload & Mark as Paid
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Chat Interface -->
+                                <div class="bg-gray-900 rounded-lg p-4 flex flex-col h-96">
+                                    <h3 class="font-semibold text-white mb-4">Chat with Buyer</h3>
+                                    
+                                    <!-- Chat Messages -->
+                                    <div class="flex-1 overflow-y-auto space-y-3 mb-4">
+                                        <!-- @MAP: chatMessages.map(message => ( -->
+                                        <div class="flex space-x-3" data-mock="true">
+                                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                                                 alt="User avatar" 
+                                                 class="w-8 h-8 rounded-full object-cover" />
+                                            <div class="flex-1">
+                                                <div class="bg-gray-800 rounded-lg px-3 py-2">
+                                                    <p class="text-white text-sm">Hi, I've sent the payment. Please check your account.</p>
+                                                </div>
+                                                <p class="text-xs text-gray-400 mt-1">2 minutes ago</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex space-x-3 flex-row-reverse">
+                                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                                                 alt="User avatar" 
+                                                 class="w-8 h-8 rounded-full object-cover" />
+                                            <div class="flex-1 text-right">
+                                                <div class="bg-bitoja-green text-black rounded-lg px-3 py-2 inline-block">
+                                                    <p class="text-sm">Thanks! I'll verify and release the funds shortly.</p>
+                                                </div>
+                                                <p class="text-xs text-gray-400 mt-1">1 minute ago</p>
+                                            </div>
+                                        </div>
+                                        <!-- @END_MAP )) -->
+                                    </div>
+
+                                    <!-- Chat Input -->
+                                    <div class="flex space-x-2">
+                                        <input type="text" 
+                                               placeholder="Type your message..." 
+                                               class="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-bitoja-green" 
+                                               data-implementation="Real-time chat input with message sending" />
+                                        <button class="bg-bitoja-green text-black px-4 py-2 rounded-lg hover:bg-bitoja-green-light transition-colors" data-event="click:sendMessage">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Release Funds Section -->
+                            <div class="p-6 border-t border-gray-700 bg-gray-900">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-semibold text-white">Escrow Status</h3>
+                                        <p class="text-sm text-gray-400">$500.00 USDT locked in escrow</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <button class="bg-bitoja-red text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors" data-event="click:raiseDispute">
+                                            <i class="fas fa-exclamation-triangle mr-2"></i>Dispute
+                                        </button>
+                                        <button class="bg-bitoja-green text-black px-6 py-2 rounded-lg font-medium hover:bg-bitoja-green-light transition-colors" data-event="click:releaseFunds" data-implementation="Should verify payment proof before allowing release">
+                                            <i class="fas fa-unlock mr-2"></i>Release Funds
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="mt-8">
+                    <div class="bg-gray-800 rounded-lg border border-gray-700">
+                        <div class="p-6 border-b border-gray-700">
+                            <h2 class="text-lg font-semibold text-white">Recent Activity</h2>
+                        </div>
+                        <div class="p-6">
+                            <!-- @MAP: recentActivity.map(activity => ( -->
+                            <div class="space-y-4" data-mock="true">
+                                <div class="flex items-center space-x-4 p-3 bg-gray-900 rounded-lg">
+                                    <div class="w-10 h-10 bg-bitoja-green rounded-full flex items-center justify-center">
+                                        <i class="fas fa-check text-black"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">Trade completed successfully</p>
+                                        <p class="text-sm text-gray-400">Sold $300 USDT to @buyer123 • 2 hours ago</p>
+                                    </div>
+                                    <span class="text-bitoja-green font-medium">+$300.00</span>
+                                </div>
+
+                                <div class="flex items-center space-x-4 p-3 bg-gray-900 rounded-lg">
+                                    <div class="w-10 h-10 bg-bitoja-emerald rounded-full flex items-center justify-center">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">New advertisement created</p>
+                                        <p class="text-sm text-gray-400">Sell USDT - Bank Transfer • 5 hours ago</p>
+                                    </div>
+                                    <span class="text-gray-400">Active</span>
+                                </div>
+
+                                <div class="flex items-center space-x-4 p-3 bg-gray-900 rounded-lg">
+                                    <div class="w-10 h-10 bg-bitoja-amber rounded-full flex items-center justify-center">
+                                        <i class="fas fa-wallet text-white"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-white font-medium">Wallet deposit received</p>
+                                        <p class="text-sm text-gray-400">Manual deposit processed • 1 day ago</p>
+                                    </div>
+                                    <span class="text-bitoja-green font-medium">+$1,000.00</span>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- @END_COMPONENT: MainLayout -->
+
+    <!-- @COMPONENT: FloatingActionButton [mobile quick actions] -->
+    <div class="fixed bottom-6 right-6 lg:hidden">
+        <button class="bg-bitoja-green text-black w-14 h-14 rounded-full shadow-lg hover:bg-bitoja-green-light transition-colors flex items-center justify-center" data-event="click:quickAction">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+    </div>
+    <!-- @END_COMPONENT: FloatingActionButton -->
+
+    <script>
+    // TODO: Implement real-time functionality, state management, and API integrations
+    (function() {
+        // Modal controls
+        const tradeModal = document.getElementById('tradeModal');
+        
+        // Simulated interactions for demonstration
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('[data-event*="openTrade"]') || e.target.closest('[data-event*="viewTrade"]')) {
+                if (tradeModal) tradeModal.classList.remove('hidden');
+            }
+            
+            if (e.target.closest('[data-event*="closeTrade"]') || e.target === tradeModal) {
+                if (tradeModal) tradeModal.classList.add('hidden');
+            }
+        });
+
+        // Prevent modal from closing when clicking inside
+        if (tradeModal) {
+            tradeModal.addEventListener('click', function(e) {
+                if (e.target === tradeModal) {
+                    tradeModal.classList.add('hidden');
+                }
+            });
+        }
+
+        // Copy to clipboard functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('[data-event*="copyAccount"]')) {
+                // TODO: Implement clipboard copy functionality
+                console.log('Copy account number to clipboard');
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,676 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BitOja - Simple P2P Crypto Trading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    'bitoja-green': '#00C851',
+                    'bitoja-green-dark': '#00A844',
+                    'bitoja-black': '#000000',
+                    'bitoja-gray': '#1a1a1a',
+                }
+            },
+            fontFamily: {
+                'inter': ['Inter', 'sans-serif'],
+            }
+        }
+    };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://heroicons.com/css/heroicons.css">
+    <style>
+        .heroicon { width: 1.25rem; height: 1.25rem; }
+        .heroicon-lg { width: 2rem; height: 2rem; }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 text-gray-900">
+
+<!-- @COMPONENT: Navigation [mobile-first sticky header] -->
+<nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <div class="w-8 h-8 bg-bitoja-green rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">B</span>
+                    </div>
+                    <span class="ml-2 text-xl font-bold text-bitoja-black">BitOja</span>
+                </div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:block">
+                <div class="ml-10 flex items-baseline space-x-4">
+                    <a href="#" class="text-bitoja-black hover:text-bitoja-green px-3 py-2 text-sm font-medium">Dashboard</a>
+                    <a href="#" class="text-gray-600 hover:text-bitoja-green px-3 py-2 text-sm font-medium">Trade</a>
+                    <a href="#" class="text-gray-600 hover:text-bitoja-green px-3 py-2 text-sm font-medium">My Ads</a>
+                    <a href="#" class="text-gray-600 hover:text-bitoja-green px-3 py-2 text-sm font-medium">History</a>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="flex items-center space-x-4">
+                <button class="p-2 rounded-full text-gray-400 hover:text-gray-500">
+                    <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5l-5-5h5V7h10z"></path>
+                    </svg>
+                </button>
+                <!-- User avatar placeholder -->
+                <img class="h-8 w-8 rounded-full object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="User profile" data-mock="true">
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button class="text-gray-600 hover:text-gray-900 p-2">
+                    <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- @END_COMPONENT: Navigation -->
+
+<!-- @COMPONENT: WalletOverview [balance display cards] -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-bitoja-black mb-2">Welcome back, <span data-bind="user.name">John Doe</span></h1>
+        <p class="text-gray-600">Your trading dashboard</p>
+    </div>
+
+    <!-- Wallet Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- BTC Wallet -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                        <span class="text-orange-600 font-bold">₿</span>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Bitcoin</h3>
+                        <p class="text-sm text-gray-500">BTC</p>
+                    </div>
+                </div>
+                <button class="text-bitoja-green hover:text-bitoja-green-dark">
+                    <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-2">
+                <p class="text-2xl font-bold text-gray-900" data-bind="user.btcBalance">0.00854321</p>
+                <p class="text-sm text-gray-500">≈ $<span data-bind="user.btcBalanceUSD">387.50</span></p>
+            </div>
+        </div>
+
+        <!-- USDT Wallet -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600 font-bold">₮</span>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-gray-900">Tether</h3>
+                        <p class="text-sm text-gray-500">USDT</p>
+                    </div>
+                </div>
+                <button class="text-bitoja-green hover:text-bitoja-green-dark">
+                    <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="space-y-2">
+                <p class="text-2xl font-bold text-gray-900" data-bind="user.usdtBalance">1,245.67</p>
+                <p class="text-sm text-gray-500">≈ $<span data-bind="user.usdtBalanceUSD">1,245.67</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: WalletOverview -->
+
+<!-- @COMPONENT: QuickActions [main action buttons] -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Create Ad Button -->
+            <button class="bg-bitoja-green hover:bg-bitoja-green-dark text-white rounded-lg p-4 text-center transition-colors duration-200" data-event="click:createAd">
+                <svg class="heroicon-lg mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <p class="font-medium">Create Ad</p>
+                <p class="text-sm opacity-90">Post buy/sell offer</p>
+            </button>
+
+            <!-- Browse Ads Button -->
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg p-4 text-center transition-colors duration-200" data-event="click:browseAds">
+                <svg class="heroicon-lg mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <p class="font-medium">Browse Ads</p>
+                <p class="text-sm text-gray-600">Find offers</p>
+            </button>
+
+            <!-- Swap Tokens Button -->
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg p-4 text-center transition-colors duration-200" data-event="click:swapTokens">
+                <svg class="heroicon-lg mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                </svg>
+                <p class="font-medium">Swap</p>
+                <p class="text-sm text-gray-600">BTC ↔ USDT</p>
+            </button>
+
+            <!-- Transaction History Button -->
+            <button class="bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg p-4 text-center transition-colors duration-200" data-event="click:viewHistory">
+                <svg class="heroicon-lg mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="font-medium">History</p>
+                <p class="text-sm text-gray-600">Your trades</p>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: QuickActions -->
+
+<!-- @COMPONENT: ActiveAds [recent advertisements list] -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Advertisements</h2>
+                <button class="text-bitoja-green hover:text-bitoja-green-dark text-sm font-medium">View All</button>
+            </div>
+        </div>
+        
+        <!-- Ad Filters -->
+        <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+            <div class="flex flex-wrap gap-2">
+                <button class="px-3 py-1 bg-bitoja-green text-white rounded-full text-sm font-medium">All</button>
+                <button class="px-3 py-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full text-sm font-medium">Buy BTC</button>
+                <button class="px-3 py-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full text-sm font-medium">Sell BTC</button>
+                <button class="px-3 py-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full text-sm font-medium">Buy USDT</button>
+                <button class="px-3 py-1 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-full text-sm font-medium">Sell USDT</button>
+            </div>
+        </div>
+
+        <!-- @MAP: advertisements.map(ad => ( -->
+        <!-- Ad Item 1 -->
+        <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer" data-event="click:viewAd" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600 font-bold text-sm">BUY</span>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Buy BTC with NGN</p>
+                        <p class="text-sm text-gray-500">Bank Transfer • <span data-bind="ad.user.name">Sarah_Trader</span> • 98.5% rating</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">₦<span data-bind="ad.rate">45,250,000</span></p>
+                    <p class="text-sm text-gray-500">Limit: ₦<span data-bind="ad.minLimit">50K</span> - ₦<span data-bind="ad.maxLimit">2M</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Item 2 -->
+        <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer" data-event="click:viewAd" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <span class="text-red-600 font-bold text-sm">SELL</span>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Sell USDT for GHS</p>
+                        <p class="text-sm text-gray-500">Mobile Money • <span data-bind="ad.user.name">CryptoKing23</span> • 95.2% rating</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">₵<span data-bind="ad.rate">6.45</span></p>
+                    <p class="text-sm text-gray-500">Limit: ₵<span data-bind="ad.minLimit">100</span> - ₵<span data-bind="ad.maxLimit">5K</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ad Item 3 -->
+        <div class="px-6 py-4 hover:bg-gray-50 cursor-pointer" data-event="click:viewAd" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-green-600 font-bold text-sm">BUY</span>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Buy USDT with USD</p>
+                        <p class="text-sm text-gray-500">Wire Transfer • <span data-bind="ad.user.name">FastTrader_Pro</span> • 99.1% rating</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">$<span data-bind="ad.rate">1.02</span></p>
+                    <p class="text-sm text-gray-500">Limit: $<span data-bind="ad.minLimit">100</span> - $<span data-bind="ad.maxLimit">10K</span></p>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+    </div>
+</div>
+<!-- @END_COMPONENT: ActiveAds -->
+
+<!-- @COMPONENT: CreateAdModal [advertisement creation form - hidden by default] -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" id="createAdModal" data-mock="true">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Create Advertisement</h3>
+                    <button class="text-gray-400 hover:text-gray-500" data-event="click:closeModal">
+                        <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <form class="px-6 py-4 space-y-4" data-implementation="Handle form submission for creating ads">
+                <!-- Trade Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Trade Type</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" class="p-3 border-2 border-bitoja-green bg-bitoja-green text-white rounded-lg font-medium">Buy</button>
+                        <button type="button" class="p-3 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:border-gray-400">Sell</button>
+                    </div>
+                </div>
+
+                <!-- Asset Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Asset</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                        <option>Bitcoin (BTC)</option>
+                        <option>Tether (USDT)</option>
+                    </select>
+                </div>
+
+                <!-- Currency -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                        <option>Nigerian Naira (NGN)</option>
+                        <option>Ghanaian Cedi (GHS)</option>
+                        <option>US Dollar (USD)</option>
+                        <option>Euro (EUR)</option>
+                    </select>
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                    <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                        <option>Bank Transfer</option>
+                        <option>Mobile Money</option>
+                        <option>Wire Transfer</option>
+                        <option>Cash</option>
+                    </select>
+                </div>
+
+                <!-- Rate -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rate per Unit</label>
+                    <div class="relative">
+                        <input type="number" placeholder="0.00" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                        <span class="absolute right-3 top-3 text-gray-500">NGN</span>
+                    </div>
+                </div>
+
+                <!-- Limits -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Min Limit</label>
+                        <input type="number" placeholder="0" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Max Limit</label>
+                        <input type="number" placeholder="0" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-bitoja-green hover:bg-bitoja-green-dark text-white font-medium py-3 rounded-lg transition-colors duration-200">
+                    Create Advertisement
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: CreateAdModal -->
+
+<!-- @COMPONENT: TradeExecutionModal [trading interface with chat - hidden by default] -->
+<div class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" id="tradeModal" data-mock="true">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-screen overflow-hidden flex flex-col">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Trade with <span data-bind="trade.partner.name">Sarah_Trader</span></h3>
+                        <p class="text-sm text-gray-500">Buy BTC with NGN • Rate: ₦45,250,000</p>
+                    </div>
+                    <button class="text-gray-400 hover:text-gray-500" data-event="click:closeTradeModal">
+                        <svg class="heroicon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trade Details & Amount -->
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount (NGN)</label>
+                        <input type="number" placeholder="100000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">You'll receive (BTC)</label>
+                        <input type="text" value="0.00221" readonly class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-600">
+                    </div>
+                </div>
+                <button class="w-full mt-4 bg-bitoja-green hover:bg-bitoja-green-dark text-white font-medium py-3 rounded-lg" data-event="click:initiateTrade">
+                    Initiate Trade
+                </button>
+            </div>
+
+            <!-- Trade Status & Progress -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-gray-900">Trade Status</h4>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium" data-bind="trade.status">Waiting for Payment</span>
+                </div>
+                
+                <!-- Progress Steps -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-bitoja-green rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">Trade Started</span>
+                    </div>
+                    <div class="w-8 border-t-2 border-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">2</span>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-900 font-medium">Payment Pending</span>
+                    </div>
+                    <div class="w-8 border-t-2 border-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <span class="text-gray-600 text-sm font-bold">3</span>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">Release Tokens</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="flex-1 flex flex-col">
+                <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+                    <h4 class="font-medium text-gray-900">Chat</h4>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div class="flex-1 px-6 py-4 overflow-y-auto max-h-64 space-y-4" data-mock="true">
+                    <!-- @MAP: messages.map(message => ( -->
+                    <div class="flex items-start space-x-2">
+                        <img class="w-8 h-8 rounded-full object-cover" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Other user avatar">
+                        <div class="flex-1">
+                            <div class="bg-gray-100 rounded-lg p-3">
+                                <p class="text-sm text-gray-900">Hello! I'm ready to proceed with the trade. Please send the payment to the account details I'll share.</p>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Sarah_Trader • 2 minutes ago</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-2 justify-end">
+                        <div class="flex-1 max-w-xs">
+                            <div class="bg-bitoja-green rounded-lg p-3">
+                                <p class="text-sm text-white">Great! I'm ready to send the payment. Please share your account details.</p>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1 text-right">You • 1 minute ago</p>
+                        </div>
+                        <img class="w-8 h-8 rounded-full object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Your avatar">
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Chat Input -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="Type your message..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-bitoja-green focus:border-transparent">
+                        <button class="px-4 py-3 bg-bitoja-green hover:bg-bitoja-green-dark text-white rounded-lg" data-event="click:sendMessage">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 space-y-3">
+                <!-- File Upload for Payment Proof -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Payment Proof</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                        <svg class="heroicon-lg mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-sm text-gray-600">Click to upload receipt or screenshot</p>
+                        <input type="file" class="hidden" accept="image/*" data-implementation="Handle file upload for payment proof">
+                    </div>
+                </div>
+
+                <!-- Release Button (for seller) -->
+                <button class="w-full bg-bitoja-green hover:bg-bitoja-green-dark text-white font-medium py-3 rounded-lg" data-event="click:releaseTokens" data-implementation="Only show for seller after payment confirmation">
+                    Release Tokens
+                </button>
+                
+                <!-- Dispute Button -->
+                <button class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg" data-event="click:reportDispute">
+                    Report Issue
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- @END_COMPONENT: TradeExecutionModal -->
+
+<!-- @COMPONENT: RecentTransactions [transaction history summary] -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Recent Transactions</h2>
+                <button class="text-bitoja-green hover:text-bitoja-green-dark text-sm font-medium">View All</button>
+            </div>
+        </div>
+
+        <!-- @MAP: transactions.map(transaction => ( -->
+        <div class="px-6 py-4 border-b border-gray-100" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Bought BTC</p>
+                        <p class="text-sm text-gray-500">From <span data-bind="transaction.partner">Sarah_Trader</span> • <span data-bind="transaction.date">2 hours ago</span></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">+0.00221 BTC</p>
+                    <p class="text-sm text-gray-500">-₦100,000</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 py-4 border-b border-gray-100" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Swapped BTC to USDT</p>
+                        <p class="text-sm text-gray-500">Internal swap • <span data-bind="transaction.date">1 day ago</span></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">+500 USDT</p>
+                    <p class="text-sm text-gray-500">-0.011 BTC</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 py-4" data-mock="true">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Sold USDT</p>
+                        <p class="text-sm text-gray-500">To <span data-bind="transaction.partner">CryptoKing23</span> • <span data-bind="transaction.date">3 days ago</span></p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-gray-900">-200 USDT</p>
+                    <p class="text-sm text-gray-500">+₵1,290</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                </div>
+            </div>
+        </div>
+        <!-- @END_MAP )) -->
+    </div>
+</div>
+<!-- @END_COMPONENT: RecentTransactions -->
+
+<!-- @COMPONENT: BottomNavigation [mobile navigation] -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+    <div class="grid grid-cols-4 gap-1">
+        <button class="flex flex-col items-center py-2 px-1 text-bitoja-green" data-event="click:navigateHome">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+            </svg>
+            <span class="text-xs mt-1">Home</span>
+        </button>
+        
+        <button class="flex flex-col items-center py-2 px-1 text-gray-600" data-event="click:navigateTrade">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <span class="text-xs mt-1">Trade</span>
+        </button>
+        
+        <button class="flex flex-col items-center py-2 px-1 text-gray-600" data-event="click:navigateAds">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <span class="text-xs mt-1">My Ads</span>
+        </button>
+        
+        <button class="flex flex-col items-center py-2 px-1 text-gray-600" data-event="click:navigateHistory">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span class="text-xs mt-1">History</span>
+        </button>
+    </div>
+</div>
+<!-- @END_COMPONENT: BottomNavigation -->
+
+<!-- JavaScript for basic interactivity (non-functional, for demo purposes) -->
+<script>
+(function() {
+    // TODO: Implement proper state management and API integration
+    
+    // Modal toggle functionality for demonstration
+    const createAdButton = document.querySelector('[data-event="click:createAd"]');
+    const createAdModal = document.getElementById('createAdModal');
+    const closeModalButton = document.querySelector('[data-event="click:closeModal"]');
+    
+    const tradeModal = document.getElementById('tradeModal');
+    const closeTradeModalButton = document.querySelector('[data-event="click:closeTradeModal"]');
+    
+    // Demo modal functionality
+    if (createAdButton && createAdModal) {
+        createAdButton.addEventListener('click', () => {
+            createAdModal.classList.remove('hidden');
+        });
+    }
+    
+    if (closeModalButton && createAdModal) {
+        closeModalButton.addEventListener('click', () => {
+            createAdModal.classList.add('hidden');
+        });
+    }
+    
+    // Demo trade modal functionality
+    const adItems = document.querySelectorAll('[data-event="click:viewAd"]');
+    adItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (tradeModal) {
+                tradeModal.classList.remove('hidden');
+            }
+        });
+    });
+    
+    if (closeTradeModalButton && tradeModal) {
+        closeTradeModalButton.addEventListener('click', () => {
+            tradeModal.classList.add('hidden');
+        });
+    }
+    
+    // Close modals when clicking outside
+    [createAdModal, tradeModal].forEach(modal => {
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+    });
+    
+    // TODO: Implement actual functionality for:
+    // - Real-time chat system
+    // - File upload handling
+    // - Form validation and submission
+    // - Trade status updates
+    // - Wallet balance updates
+    // - Push notifications
+    // - API calls for data fetching
+})();
+</script>
+
+</body>
+</html>
