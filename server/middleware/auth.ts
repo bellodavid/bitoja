@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { supabase } from "../config/supabase.js";
+import { supabase, getSupabaseForToken } from "../config/supabase.js";
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -7,6 +7,7 @@ export interface AuthenticatedRequest extends Request {
     email: string;
     role?: string;
   };
+  supabaseClient?: ReturnType<typeof getSupabaseForToken>;
 }
 
 export const authenticate = async (
@@ -39,12 +40,13 @@ export const authenticate = async (
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    // Add user info to request object
+    // Add user info to request object and attach RLS-aware client
     req.user = {
       id: user.id,
       email: user.email!,
       role: user.role,
     };
+    req.supabaseClient = getSupabaseForToken(token);
 
     next();
   } catch (error) {
@@ -76,6 +78,7 @@ export const optionalAuth = async (
             email: user.email!,
             role: user.role,
           };
+          req.supabaseClient = getSupabaseForToken(token);
         }
       }
     }

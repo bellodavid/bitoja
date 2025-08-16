@@ -2,6 +2,7 @@ import { Router } from "express";
 import { supabase, supabaseAdmin } from "../config/supabase.js";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
 import { validate, schemas } from "../middleware/validation.js";
+import { generateWalletsIfMissingForUser } from "../services/walletProvision.js";
 
 const router = Router();
 
@@ -9,9 +10,10 @@ const router = Router();
 router.get("/user", authenticate, async (req: AuthenticatedRequest, res) => {
   try {
     const userId = req.user!.id;
+    const email = req.user!.email;
+    const client = req.supabaseClient ?? supabase;
 
-    // Get user profile from our users table
-    const { data: userProfile, error } = await supabase
+    let { data: userProfile, error } = await client
       .from("users")
       .select(
         `
@@ -26,29 +28,73 @@ router.get("/user", authenticate, async (req: AuthenticatedRequest, res) => {
         created_at,
         wallets (
           asset_type,
-          balance
+          balance,
+          address
         )
       `
       )
       .eq("id", userId)
       .single();
 
-    if (error) {
-      console.error("Error fetching user profile:", error);
-      return res.status(404).json({ error: "User profile not found" });
+    if (error || !userProfile) {
+      // Auto-provision missing user row and wallets
+      const username = email ? email.split("@")[0] : undefined;
+      await supabaseAdmin
+        .from("users")
+        .upsert({ id: userId, email, username }, { onConflict: "id" });
+      await supabaseAdmin.from("wallets").upsert(
+        [
+          { user_id: userId, asset_type: "BTC", balance: "0" },
+          { user_id: userId, asset_type: "USDT", balance: "0" },
+        ],
+        { onConflict: "user_id,asset_type", ignoreDuplicates: true }
+      );
+
+      // Generate addresses/keys if missing
+      await generateWalletsIfMissingForUser(userId);
+
+      // Re-fetch via RLS client
+      const refetch = await client
+        .from("users")
+        .select(
+          `
+          id,
+          email,
+          first_name,
+          last_name,
+          username,
+          profile_image_url,
+          phone_number,
+          is_verified,
+          created_at,
+          wallets (
+            asset_type,
+            balance,
+            address
+          )
+        `
+        )
+        .eq("id", userId)
+        .single();
+
+      if (refetch.error || !refetch.data) {
+        return res.status(404).json({ error: "User profile not found" });
+      }
+
+      userProfile = refetch.data as any;
     }
 
-    // Transform wallets to a more convenient format
-    const wallets = userProfile.wallets.reduce((acc: any, wallet: any) => {
-      acc[wallet.asset_type.toLowerCase() + "Balance"] = wallet.balance;
-      return acc;
-    }, {});
+    const wallets = (userProfile.wallets || []).reduce(
+      (acc: any, wallet: any) => {
+        acc[wallet.asset_type.toLowerCase() + "Balance"] = wallet.balance;
+        acc[wallet.asset_type.toLowerCase() + "Address"] = wallet.address;
+        return acc;
+      },
+      {}
+    );
 
-    const user = {
-      ...userProfile,
-      ...wallets,
-      wallets: undefined, // Remove the array format
-    };
+    const user = { ...userProfile, ...wallets } as any;
+    delete (user as any).wallets;
 
     res.json(user);
   } catch (error) {
@@ -90,7 +136,7 @@ router.put(
 // Sign up with email and password
 router.post("/signup", async (req, res) => {
   try {
-    const { email, password, first_name, last_name } = req.body;
+    const { email, password, first_name, last_name, username } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
@@ -103,6 +149,7 @@ router.post("/signup", async (req, res) => {
         data: {
           first_name,
           last_name,
+          username,
         },
       },
     });

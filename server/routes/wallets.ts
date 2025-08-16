@@ -2,8 +2,114 @@ import { Router } from "express";
 import { supabase } from "../config/supabase.js";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
 import { validate, validateQuery, schemas } from "../middleware/validation.js";
+import crypto from "crypto";
+import * as bip39 from "bip39";
+import * as bitcoin from "bitcoinjs-lib";
+import { ethers } from "ethers";
 
 const router = Router();
+
+function encrypt(text: string): string {
+  const key = crypto
+    .createHash("sha256")
+    .update(process.env.JWT_SECRET || "default_secret")
+    .digest();
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+  const encrypted = Buffer.concat([
+    cipher.update(text, "utf8"),
+    cipher.final(),
+  ]);
+  return iv.toString("hex") + ":" + encrypted.toString("hex");
+}
+
+router.post(
+  "/generate",
+  authenticate,
+  async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = req.user!.id;
+
+      // Check existing wallets
+      const { data: existing, error: qErr } = await supabase
+        .from("wallets")
+        .select("asset_type,address,private_key_encrypted")
+        .eq("user_id", userId);
+
+      if (qErr) {
+        console.error("Wallet query error:", qErr);
+      }
+
+      const hasBtc = existing?.some(
+        (w) => w.asset_type === "BTC" && w.address && w.private_key_encrypted
+      );
+      const hasUsdt = existing?.some(
+        (w) => w.asset_type === "USDT" && w.address && w.private_key_encrypted
+      );
+
+      let btcAddress: string | undefined = existing?.find(
+        (w) => w.asset_type === "BTC"
+      )?.address as string | undefined;
+      let usdtAddress: string | undefined = existing?.find(
+        (w) => w.asset_type === "USDT"
+      )?.address as string | undefined;
+
+      // Generate missing BTC
+      if (!hasBtc) {
+        const network =
+          process.env.BTC_NETWORK === "testnet"
+            ? bitcoin.networks.testnet
+            : bitcoin.networks.bitcoin;
+        const mnemonic = bip39.generateMnemonic();
+        const seed = await bip39.mnemonicToSeed(mnemonic);
+        const root = bitcoin.bip32.fromSeed(seed, network);
+        const child = root.derivePath("m/44'/0'/0'/0/0");
+        const pay = bitcoin.payments.p2pkh({
+          pubkey: child.publicKey,
+          network,
+        });
+        btcAddress = pay.address || undefined;
+        const wif = child.toWIF();
+
+        await supabase.from("wallets").upsert(
+          {
+            user_id: userId,
+            asset_type: "BTC",
+            address: btcAddress || null,
+            private_key_encrypted: encrypt(wif),
+          },
+          { onConflict: "user_id,asset_type", ignoreDuplicates: true }
+        );
+      }
+
+      // Generate missing USDT
+      if (!hasUsdt) {
+        const wallet = ethers.Wallet.createRandom();
+        usdtAddress = wallet.address;
+
+        await supabase.from("wallets").upsert(
+          {
+            user_id: userId,
+            asset_type: "USDT",
+            address: usdtAddress,
+            private_key_encrypted: encrypt(wallet.privateKey),
+          },
+          { onConflict: "user_id,asset_type", ignoreDuplicates: true }
+        );
+      }
+
+      res.json({
+        message:
+          !hasBtc || !hasUsdt ? "Wallets generated" : "Wallets already exist",
+        btcAddress,
+        usdtAddress,
+      });
+    } catch (error) {
+      console.error("Error generating wallets:", error);
+      res.status(500).json({ error: "Failed to generate wallets" });
+    }
+  }
+);
 
 // Get user's wallets
 router.get("/", authenticate, async (req: AuthenticatedRequest, res) => {

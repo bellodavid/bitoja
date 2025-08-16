@@ -42,7 +42,7 @@ function Router() {
           <Route path="/my-ads" component={MyAds} />
           <Route path="/history" component={History} />
           <Route path="/swap" component={Swap} />
-          <Route component={NotFound} />
+         
         </>
       )}
     </Switch>

@@ -182,12 +182,13 @@ CREATE POLICY "Users can view their own wallet transactions" ON public.wallet_tr
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.users (id, email, first_name, last_name)
+  INSERT INTO public.users (id, email, first_name, last_name, username)
   VALUES (
     NEW.id,
     NEW.email,
     NEW.raw_user_meta_data->>'first_name',
-    NEW.raw_user_meta_data->>'last_name'
+    NEW.raw_user_meta_data->>'last_name',
+    COALESCE(NEW.raw_user_meta_data->>'username', split_part(NEW.email, '@', 1))
   );
 
   -- Create wallets for new user
