@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server/index.ts",
+      "src": "api/index.js",
       "use": "@vercel/node"
     },
     {
@@ -16,14 +16,18 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server/index.ts"
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/health",
+      "dest": "/api/spa.js"
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "/server/index.ts"
+      "dest": "/api/index.js"
     },
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map|json))",
       "dest": "/dist/public/$1"
     },
     {
@@ -32,8 +36,8 @@
     }
   ],
   "functions": {
-    "server/index.ts": {
-      "includeFiles": "shared/**"
+    "api/index.js": {
+      "includeFiles": ["shared/**/*", "server/dist/**/*"]
     }
   }
 }

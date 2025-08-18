@@ -84,7 +84,7 @@ router.get("/user", authenticate, async (req: AuthenticatedRequest, res) => {
       userProfile = refetch.data as any;
     }
 
-    const wallets = (userProfile.wallets || []).reduce(
+    const wallets = (userProfile?.wallets || []).reduce(
       (acc: any, wallet: any) => {
         acc[wallet.asset_type.toLowerCase() + "Balance"] = wallet.balance;
         acc[wallet.asset_type.toLowerCase() + "Address"] = wallet.address;
