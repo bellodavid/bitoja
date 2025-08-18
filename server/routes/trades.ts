@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { supabase } from "../config/supabase.js";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
 import { validate, validateQuery, schemas } from "../middleware/validation.js";
@@ -44,7 +44,7 @@ router.get(
   "/my",
   authenticate,
   validateQuery(schemas.pagination),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
       const { page = 1, limit = 20 } = req.query;
@@ -113,7 +113,7 @@ router.get(
 );
 
 // Get single trade
-router.get("/:id", authenticate, async (req: AuthenticatedRequest, res) => {
+router.get("/:id", authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user!.id;
@@ -186,7 +186,7 @@ router.post(
   "/",
   authenticate,
   validate(schemas.trade),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
       const { advertisement_id, amount } = req.body;
@@ -292,7 +292,7 @@ router.post(
   "/:id/payment-proof",
   authenticate,
   upload.single("proof"),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
@@ -356,7 +356,7 @@ router.post(
 router.post(
   "/:id/release",
   authenticate,
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
@@ -438,7 +438,7 @@ router.post(
 router.patch(
   "/:id/status",
   authenticate,
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const { status, dispute_reason } = req.body;
@@ -499,7 +499,7 @@ router.patch(
 router.get(
   "/:id/messages",
   authenticate,
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
@@ -558,7 +558,7 @@ router.post(
   "/:id/messages",
   authenticate,
   validate(schemas.message),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;

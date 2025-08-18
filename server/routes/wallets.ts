@@ -1,10 +1,8 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { supabase } from "../config/supabase.js";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
 import { validate, validateQuery, schemas } from "../middleware/validation.js";
 import crypto from "crypto";
-import * as bip39 from "bip39";
-import * as bitcoin from "bitcoinjs-lib";
 import { ethers } from "ethers";
 
 const router = Router();
@@ -26,7 +24,7 @@ function encrypt(text: string): string {
 router.post(
   "/generate",
   authenticate,
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
 
@@ -56,10 +54,7 @@ router.post(
 
       // Generate missing BTC
       if (!hasBtc) {
-        const network =
-          process.env.BTC_NETWORK === "testnet"
-            ? bitcoin.networks.testnet
-            : bitcoin.networks.bitcoin;
+        const isTestnet = process.env.BTC_NETWORK === "testnet";
 
         // Generate a demo address for testing purposes
         // In production, you'd use proper HD wallet generation
@@ -68,10 +63,9 @@ router.post(
           testnet: "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx", // Testnet address
         };
 
-        btcAddress =
-          network === bitcoin.networks.testnet
-            ? demoAddresses.testnet
-            : demoAddresses.mainnet;
+        btcAddress = isTestnet
+          ? demoAddresses.testnet
+          : demoAddresses.mainnet;
         const wif = "demo-private-key"; // In production, generate real private key
 
         await supabase.from("wallets").upsert(
@@ -115,7 +109,7 @@ router.post(
 );
 
 // Get user's wallets
-router.get("/", authenticate, async (req: AuthenticatedRequest, res) => {
+router.get("/", authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
 
@@ -138,7 +132,7 @@ router.get("/", authenticate, async (req: AuthenticatedRequest, res) => {
 });
 
 // Get wallet by asset type
-router.get("/:asset", authenticate, async (req: AuthenticatedRequest, res) => {
+router.get("/:asset", authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const { asset } = req.params;
@@ -171,7 +165,7 @@ router.get(
   "/:asset/transactions",
   authenticate,
   validateQuery(schemas.pagination),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
       const { asset } = req.params;
@@ -227,7 +221,7 @@ router.get(
 router.post(
   "/demo-balance",
   authenticate,
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
 
@@ -295,7 +289,7 @@ router.post(
   "/swap",
   authenticate,
   validate(schemas.swap),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
       const { from_asset, to_asset, from_amount } = req.body;
@@ -429,7 +423,7 @@ router.get(
   "/swaps",
   authenticate,
   validateQuery(schemas.pagination),
-  async (req: AuthenticatedRequest, res) => {
+  async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user!.id;
       const { page = 1, limit = 20 } = req.query;

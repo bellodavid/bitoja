@@ -1,7 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import crypto from "crypto";
-import * as bip39 from "bip39";
-import * as bitcoin from "bitcoinjs-lib";
 import { ethers } from "ethers";
 
 function encrypt(text: string): string {
@@ -43,10 +41,7 @@ export async function generateWalletsIfMissingForUser(userId: string) {
 
   // Generate BTC address/key if missing
   if (!hasBtc) {
-    const network =
-      process.env.BTC_NETWORK === "testnet"
-        ? bitcoin.networks.testnet
-        : bitcoin.networks.bitcoin;
+    const isTestnet = process.env.BTC_NETWORK === "testnet";
 
     // Generate demo address for testing purposes
     const demoAddresses = {
@@ -54,10 +49,9 @@ export async function generateWalletsIfMissingForUser(userId: string) {
       testnet: "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx",
     };
 
-    btcAddress =
-      network === bitcoin.networks.testnet
-        ? demoAddresses.testnet
-        : demoAddresses.mainnet;
+    btcAddress = isTestnet
+      ? demoAddresses.testnet
+      : demoAddresses.mainnet;
     const wif = "demo-private-key";
 
     const { error: upErr } = await supabaseAdmin.from("wallets").upsert(
