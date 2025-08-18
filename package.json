@@ -8,11 +8,12 @@
     "dev:server": "cd server && bun run dev",
     "dev:both": "concurrently \"bun run dev\" \"bun run dev:server\"",
     "build": "vite build",
-    "build:server": "cd server && bun run build",
-    "build:both": "bun run build && bun run build:server",
+    "build:server": "cd server && npm run build",
+    "build:both": "npm run build && npm run build:server",
     "preview": "vite preview",
     "check": "tsc",
-    "start:server": "cd server && bun start"
+    "start:server": "cd server && npm start",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

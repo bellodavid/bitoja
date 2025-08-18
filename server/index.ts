@@ -40,6 +40,7 @@ const corsOptions = {
   origin: process.env.ALLOWED_ORIGINS?.split(",") || [
     "http://localhost:5173",
     "http://localhost:3000",
+    "https://your-app-name.vercel.app", // Add your Vercel domain here
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -93,13 +94,24 @@ app.use("/api/wallets", (req, res, next) => {
     .catch(next);
 });
 
-// 404 handler
-app.use("*", (req, res) => {
+// 404 handler for API routes only
+app.use("/api/*", (req, res) => {
   res.status(404).json({
-    error: "Route not found",
+    error: "API route not found",
     path: req.originalUrl,
-    method: req.method,
+    timestamp: new Date().toISOString(),
   });
+});
+
+// Catch-all handler for SPA routes (serve index.html for client-side routing)
+app.get("*", (req, res) => {
+  // In production, Vercel will handle static files
+  if (process.env.NODE_ENV === "production") {
+    return res.status(404).json({ error: "Not found" });
+  }
+  
+  // In development, serve the index.html for SPA routing
+  res.sendFile(path.join(__dirname, "../dist/public/index.html"));
 });
 
 // Global error handler
@@ -145,19 +157,22 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📋 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🌐 CORS origins: ${corsOptions.origin}`);
-  console.log(`📁 Upload path: ${uploadsDir}`);
-  console.log(
-    `🔐 Rate limit: ${
-      process.env.RATE_LIMIT_MAX_REQUESTS || 100
-    } requests per ${
-      parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000") / 60000
-    } minutes`
-  );
-});
+// Only start server in development mode
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`📋 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`🌐 CORS origins: ${corsOptions.origin}`);
+    console.log(`📁 Upload path: ${uploadsDir}`);
+    console.log(
+      `🔐 Rate limit: ${
+        process.env.RATE_LIMIT_MAX_REQUESTS || 100
+      } requests per ${
+        parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000") / 60000
+      } minutes`
+    );
+  });
+}
 
 export default app;

@@ -1,5 +1,5 @@
-import { sql } from 'drizzle-orm';
-import { relations } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   index,
   jsonb,
@@ -17,12 +17,38 @@ import { z } from "zod";
 // Enums (must be defined before tables)
 export const assetEnum = pgEnum("asset", ["BTC", "USDT"]);
 export const tradeTypeEnum = pgEnum("trade_type", ["BUY", "SELL"]);
-export const paymentMethodEnum = pgEnum("payment_method", ["BANK_TRANSFER", "MOBILE_MONEY", "WIRE_TRANSFER", "CASH"]);
+export const paymentMethodEnum = pgEnum("payment_method", [
+  "BANK_TRANSFER",
+  "MOBILE_MONEY",
+  "WIRE_TRANSFER",
+  "CASH",
+]);
 export const currencyEnum = pgEnum("currency", ["NGN", "GHS", "USD", "EUR"]);
-export const adStatusEnum = pgEnum("ad_status", ["ACTIVE", "INACTIVE", "DELETED"]);
-export const tradeStatusEnum = pgEnum("trade_status", ["PENDING", "PAID", "RELEASED", "DISPUTED", "CANCELLED", "COMPLETED"]);
-export const transactionTypeEnum = pgEnum("transaction_type", ["DEPOSIT", "WITHDRAWAL", "INTERNAL_TRANSFER", "TRADE_ESCROW", "TRADE_RELEASE"]);
-export const transactionStatusEnum = pgEnum("transaction_status", ["PENDING", "CONFIRMED", "FAILED"]);
+export const adStatusEnum = pgEnum("ad_status", [
+  "ACTIVE",
+  "INACTIVE",
+  "DELETED",
+]);
+export const tradeStatusEnum = pgEnum("trade_status", [
+  "PENDING",
+  "PAID",
+  "RELEASED",
+  "DISPUTED",
+  "CANCELLED",
+  "COMPLETED",
+]);
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "DEPOSIT",
+  "WITHDRAWAL",
+  "INTERNAL_TRANSFER",
+  "TRADE_ESCROW",
+  "TRADE_RELEASE",
+]);
+export const transactionStatusEnum = pgEnum("transaction_status", [
+  "PENDING",
+  "CONFIRMED",
+  "FAILED",
+]);
 
 // Session storage table (mandatory for Replit Auth)
 export const sessions = pgTable(
@@ -32,26 +58,34 @@ export const sessions = pgTable(
     sess: jsonb("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [index("IDX_session_expire").on(table.expire)]
 );
 
 // User storage table (mandatory for Replit Auth)
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   btcBalance: decimal("btc_balance", { precision: 18, scale: 8 }).default("0"),
-  usdtBalance: decimal("usdt_balance", { precision: 18, scale: 2 }).default("0"),
+  usdtBalance: decimal("usdt_balance", { precision: 18, scale: 2 }).default(
+    "0"
+  ),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Custodial wallet system - securely store private keys
 export const wallets = pgTable("wallets", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
   asset: assetEnum("asset").notNull(),
   publicKey: varchar("public_key").notNull(),
   encryptedPrivateKey: text("encrypted_private_key").notNull(), // AES encrypted
@@ -63,9 +97,15 @@ export const wallets = pgTable("wallets", {
 
 // Transaction records for wallet operations
 export const walletTransactions = pgTable("wallet_transactions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  walletId: varchar("wallet_id").notNull().references(() => wallets.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
+  walletId: varchar("wallet_id")
+    .notNull()
+    .references(() => wallets.id),
   asset: assetEnum("asset").notNull(),
   amount: decimal("amount", { precision: 18, scale: 8 }).notNull(),
   type: transactionTypeEnum("transaction_type").notNull(),
@@ -80,8 +120,12 @@ export const walletTransactions = pgTable("wallet_transactions", {
 });
 
 export const advertisements = pgTable("advertisements", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
   asset: assetEnum("asset").notNull(),
   tradeType: tradeTypeEnum("trade_type").notNull(),
   currency: currencyEnum("currency").notNull(),
@@ -95,10 +139,18 @@ export const advertisements = pgTable("advertisements", {
 });
 
 export const trades = pgTable("trades", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  advertisementId: varchar("advertisement_id").notNull().references(() => advertisements.id),
-  buyerId: varchar("buyer_id").notNull().references(() => users.id),
-  sellerId: varchar("seller_id").notNull().references(() => users.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  advertisementId: varchar("advertisement_id")
+    .notNull()
+    .references(() => advertisements.id),
+  buyerId: varchar("buyer_id")
+    .notNull()
+    .references(() => users.id),
+  sellerId: varchar("seller_id")
+    .notNull()
+    .references(() => users.id),
   amount: decimal("amount", { precision: 18, scale: 2 }).notNull(),
   assetAmount: decimal("asset_amount", { precision: 18, scale: 8 }).notNull(),
   status: tradeStatusEnum("status").default("PENDING"),
@@ -108,16 +160,26 @@ export const trades = pgTable("trades", {
 });
 
 export const messages = pgTable("messages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  tradeId: varchar("trade_id").notNull().references(() => trades.id),
-  senderId: varchar("sender_id").notNull().references(() => users.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  tradeId: varchar("trade_id")
+    .notNull()
+    .references(() => trades.id),
+  senderId: varchar("sender_id")
+    .notNull()
+    .references(() => users.id),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const swaps = pgTable("swaps", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .notNull()
+    .references(() => users.id),
   fromAsset: assetEnum("from_asset").notNull(),
   toAsset: assetEnum("to_asset").notNull(),
   fromAmount: decimal("from_amount", { precision: 18, scale: 8 }).notNull(),
@@ -145,24 +207,30 @@ export const walletsRelations = relations(wallets, ({ one, many }) => ({
   transactions: many(walletTransactions),
 }));
 
-export const walletTransactionsRelations = relations(walletTransactions, ({ one }) => ({
-  user: one(users, {
-    fields: [walletTransactions.userId],
-    references: [users.id],
-  }),
-  wallet: one(wallets, {
-    fields: [walletTransactions.walletId],
-    references: [wallets.id],
-  }),
-}));
+export const walletTransactionsRelations = relations(
+  walletTransactions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [walletTransactions.userId],
+      references: [users.id],
+    }),
+    wallet: one(wallets, {
+      fields: [walletTransactions.walletId],
+      references: [wallets.id],
+    }),
+  })
+);
 
-export const advertisementsRelations = relations(advertisements, ({ one, many }) => ({
-  user: one(users, {
-    fields: [advertisements.userId],
-    references: [users.id],
-  }),
-  trades: many(trades),
-}));
+export const advertisementsRelations = relations(
+  advertisements,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [advertisements.userId],
+      references: [users.id],
+    }),
+    trades: many(trades),
+  })
+);
 
 export const tradesRelations = relations(trades, ({ one, many }) => ({
   advertisement: one(advertisements, {
@@ -201,7 +269,9 @@ export const swapsRelations = relations(swaps, ({ one }) => ({
 }));
 
 // Insert schemas
-export const insertAdvertisementSchema = createInsertSchema(advertisements).omit({
+export const insertAdvertisementSchema = createInsertSchema(
+  advertisements
+).omit({
   id: true,
   userId: true,
   status: true,
@@ -235,7 +305,9 @@ export const insertWalletSchema = createInsertSchema(wallets).omit({
   updatedAt: true,
 });
 
-export const insertWalletTransactionSchema = createInsertSchema(walletTransactions).omit({
+export const insertWalletTransactionSchema = createInsertSchema(
+  walletTransactions
+).omit({
   id: true,
   status: true,
   confirmations: true,
@@ -257,4 +329,6 @@ export type InsertSwap = z.infer<typeof insertSwapSchema>;
 export type Wallet = typeof wallets.$inferSelect;
 export type InsertWallet = z.infer<typeof insertWalletSchema>;
 export type WalletTransaction = typeof walletTransactions.$inferSelect;
-export type InsertWalletTransaction = z.infer<typeof insertWalletTransactionSchema>;
+export type InsertWalletTransaction = z.infer<
+  typeof insertWalletTransactionSchema
+>;
