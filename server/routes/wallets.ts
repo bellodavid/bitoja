@@ -60,17 +60,18 @@ router.post(
           process.env.BTC_NETWORK === "testnet"
             ? bitcoin.networks.testnet
             : bitcoin.networks.bitcoin;
-        
+
         // Generate a demo address for testing purposes
         // In production, you'd use proper HD wallet generation
         const demoAddresses = {
           mainnet: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", // Genesis block address
           testnet: "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx", // Testnet address
         };
-        
-        btcAddress = network === bitcoin.networks.testnet 
-          ? demoAddresses.testnet 
-          : demoAddresses.mainnet;
+
+        btcAddress =
+          network === bitcoin.networks.testnet
+            ? demoAddresses.testnet
+            : demoAddresses.mainnet;
         const wif = "demo-private-key"; // In production, generate real private key
 
         await supabase.from("wallets").upsert(

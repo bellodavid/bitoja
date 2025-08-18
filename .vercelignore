@@ -1,30 +1,36 @@
 # Dependencies
+
 node_modules
 server/node_modules
 client/node_modules
 
 # Build artifacts that should be ignored
+
 server/dist
 client/dist
 
 # Environment files (these should be set in Vercel dashboard)
+
 .env
 .env.local
 .env.development
 .env.test
 
 # Development files
-*.log
+
+\*.log
 .DS_Store
 coverage
 .nyc_output
 
 # Source TypeScript files for server (we use the compiled JS)
+
 server/src
-server/**/*.ts
-!server/dist/**/*
+server/**/\*.ts
+!server/dist/**/\*
 
 # Keep these for the build
-!shared/**/*
-!dist/public/**/*
-!api/**/*
+
+!shared/**/\*
+!dist/public/**/_
+!api/\*\*/_

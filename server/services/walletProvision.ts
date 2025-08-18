@@ -47,16 +47,17 @@ export async function generateWalletsIfMissingForUser(userId: string) {
       process.env.BTC_NETWORK === "testnet"
         ? bitcoin.networks.testnet
         : bitcoin.networks.bitcoin;
-    
+
     // Generate demo address for testing purposes
     const demoAddresses = {
       mainnet: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
       testnet: "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx",
     };
-    
-    btcAddress = network === bitcoin.networks.testnet 
-      ? demoAddresses.testnet 
-      : demoAddresses.mainnet;
+
+    btcAddress =
+      network === bitcoin.networks.testnet
+        ? demoAddresses.testnet
+        : demoAddresses.mainnet;
     const wif = "demo-private-key";
 
     const { error: upErr } = await supabaseAdmin.from("wallets").upsert(

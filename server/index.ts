@@ -109,7 +109,7 @@ app.get("*", (req, res) => {
   if (process.env.NODE_ENV === "production") {
     return res.status(404).json({ error: "Not found" });
   }
-  
+
   // In development, serve the index.html for SPA routing
   res.sendFile(path.join(__dirname, "../dist/public/index.html"));
 });
