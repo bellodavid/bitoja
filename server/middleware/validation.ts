@@ -8,7 +8,7 @@ export const validate = (schema: Joi.ObjectSchema) => {
     if (error) {
       return res.status(400).json({
         error: "Validation error",
-        details: error.details.map((detail) => detail.message),
+        details: error.details.map((detail: Joi.ValidationErrorItem) => detail.message),
       });
     }
 
@@ -23,7 +23,7 @@ export const validateQuery = (schema: Joi.ObjectSchema) => {
     if (error) {
       return res.status(400).json({
         error: "Query validation error",
-        details: error.details.map((detail) => detail.message),
+        details: error.details.map((detail: Joi.ValidationErrorItem) => detail.message),
       });
     }
 
